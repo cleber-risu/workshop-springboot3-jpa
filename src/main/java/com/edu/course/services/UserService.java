@@ -12,6 +12,8 @@ import com.edu.course.repositories.UserRepository;
 import com.edu.course.services.exceptions.DatabaseException;
 import com.edu.course.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service	
 public class UserService {
 	
@@ -44,11 +46,15 @@ public class UserService {
 	}
 	
 	public User update(Long id, User obj) {
-		// diferente do findById ele prepara o obj monitado para alteração
-		// sendo mais eficiente
-		User entity = repository.getReferenceById(id);
-		updateData(entity, obj);
-		return repository.save(entity);
+		try {
+			// diferente do findById ele prepara o obj monitado para alteração
+			// sendo mais eficiente
+			User entity = repository.getReferenceById(id);
+			updateData(entity, obj);
+			return repository.save(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);	
+		}
 	}
 
 	private void updateData(User entity, User obj) {
